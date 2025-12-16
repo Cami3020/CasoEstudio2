@@ -91,24 +91,13 @@ namespace CasoEstudio2.Controllers
         // POST: Casas/AlquilarCasa
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AlquilarCasa(CasasModel model)
+        public IActionResult AlquilarCasa(long IdCasa, string UsuarioAlquiler)
         {
-            // Remover la validación de campos que no son requeridos en el POST
-            ModelState.Remove("DescripcionCasa");
-            ModelState.Remove("PrecioCasa");
-            ModelState.Remove("FechaAlquiler");
-
-            if (!ModelState.IsValid)
+            // Validar datos recibidos
+            if (IdCasa <= 0 || string.IsNullOrWhiteSpace(UsuarioAlquiler))
             {
-                // Recargar las casas disponibles
-                List<CasasModel> casasDisponibles = ObtenerCasasDisponibles();
-                ViewBag.CasasDisponibles = casasDisponibles.Select(c => new SelectListItem
-                {
-                    Value = c.IdCasa.ToString(),
-                    Text = c.DescripcionCasa
-                }).ToList();
-
-                return View("AlquilerCasas", model);
+                TempData["ErrorMessage"] = "Debe seleccionar una casa e ingresar su nombre.";
+                return RedirectToAction(nameof(AlquilerCasas));
             }
 
             try
@@ -120,8 +109,8 @@ namespace CasoEstudio2.Controllers
                         command.CommandType = CommandType.StoredProcedure;
 
                         // Agregar parámetros
-                        command.Parameters.AddWithValue("@IdCasa", model.IdCasa);
-                        command.Parameters.AddWithValue("@UsuarioAlquiler", model.UsuarioAlquiler);
+                        command.Parameters.AddWithValue("@IdCasa", IdCasa);
+                        command.Parameters.AddWithValue("@UsuarioAlquiler", UsuarioAlquiler.Trim());
                         command.Parameters.AddWithValue("@FechaAlquiler", DateTime.Now);
 
                         connection.Open();

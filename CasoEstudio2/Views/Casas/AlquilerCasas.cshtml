@@ -18,7 +18,8 @@
                 <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Formulario de Alquiler</h4>
             </div>
             <div class="card-body p-4">
-                <form asp-action="AlquilarCasa" method="post">
+                <form asp-controller="Casas" asp-action="AlquilarCasa" method="post">
+                    @Html.AntiForgeryToken()
 
                     <div class="mb-4">
                         <label for="IdCasa" class="form-label">
@@ -27,6 +28,7 @@
                         <select asp-for="IdCasa"
                                 class="form-select form-select-lg"
                                 id="IdCasa"
+                                name="IdCasa"
                                 onchange="actualizarPrecio()"
                                 required>
                             <option value="">-- Seleccione una casa --</option>
@@ -47,8 +49,7 @@
                         </label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text bg-success text-white fw-bold">₡</span>
-                            <input asp-for="PrecioCasa"
-                                   type="text"
+                            <input type="text"
                                    class="form-control"
                                    id="PrecioCasa"
                                    readonly
@@ -65,6 +66,7 @@
                                type="text"
                                class="form-control form-control-lg"
                                id="UsuarioAlquiler"
+                               name="UsuarioAlquiler"
                                placeholder="Ingresa tu nombre"
                                maxlength="30"
                                required />
@@ -95,7 +97,7 @@
 
     <script>
         // Datos de las casas desde el servidor
-        var casasData = @Html.Raw(Json.Serialize(ViewBag.CasasData ?? new List<object>()));
+        var casasData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.CasasData ?? new List<object>()));
 
         function actualizarPrecio() {
             var select = document.getElementById('IdCasa');
@@ -120,5 +122,28 @@
                 precioInput.style.color = '#000';
             }
         }
+
+        // Validación antes de enviar
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var idCasa = document.getElementById('IdCasa').value;
+            var usuario = document.getElementById('UsuarioAlquiler').value.trim();
+
+            if (!idCasa || idCasa === '') {
+                e.preventDefault();
+                alert('Por favor, seleccione una casa');
+                return false;
+            }
+
+            if (!usuario || usuario === '') {
+                e.preventDefault();
+                alert('Por favor, ingrese su nombre');
+                return false;
+            }
+
+            // Si todo está bien, mostrar mensaje de carga
+            console.log('Enviando formulario...');
+            console.log('IdCasa:', idCasa);
+            console.log('Usuario:', usuario);
+        });
     </script>
 }
