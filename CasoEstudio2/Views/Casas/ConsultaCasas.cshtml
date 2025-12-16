@@ -1,4 +1,90 @@
-﻿@page
-@model CasoEstudio2.Views.Casas.ConsultaCasasModel
+﻿@model IEnumerable<CasoEstudio2.Models.CasasModel>
+
 @{
+    ViewData["Title"] = "Consulta de Casas";
+}
+
+<div class="text-center mb-4">
+    <h2 class="page-title">
+        <i class="bi bi-search"></i> Casas Disponibles
+    </h2>
+    <p class="text-muted">Casas con precios entre ₡115,000 y ₡180,000 mensuales</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th><i class="bi bi-house-door"></i> Descripción</th>
+                    <th><i class="bi bi-cash-coin"></i> Precio Mensual</th>
+                    <th><i class="bi bi-person"></i> Usuario</th>
+                    <th><i class="bi bi-bookmark-check"></i> Estado</th>
+                    <th><i class="bi bi-calendar"></i> Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var casa in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@casa.DescripcionCasa</td>
+                        <td class="text-success fw-bold fs-5">₡@casa.PrecioCasa.ToString("N0")</td>
+                        <td>@(string.IsNullOrEmpty(casa.UsuarioAlquiler) ? "-" : casa.UsuarioAlquiler)</td>
+                        <td>
+                            @if (casa.Estado == "Disponible")
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Disponible
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i> Reservada
+                                </span>
+                            }
+                        </td>
+                        <td>@(casa.FechaAlquiler.HasValue? casa.FechaFormateada: "-")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-5">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-custom-secondary btn-lg me-2">
+            <i class="bi bi-arrow-left"></i> Volver al Inicio
+        </a>
+        <a asp-action="AlquilerCasas" class="btn btn-custom-success btn-lg">
+            <i class="bi bi-house-add"></i> Alquilar Casa
+        </a>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i> No hay casas disponibles en este rango de precio.
+    </div>
+    <div class="text-center mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-custom-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Inicio
+        </a>
+    </div>
 }

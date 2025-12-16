@@ -1,4 +1,124 @@
-﻿@page
-@model CasoEstudio2.Views.Casas.AlquilerCasasModel
+﻿@model CasoEstudio2.Models.CasasModel
+
 @{
+    ViewData["Title"] = "Alquiler de Casas";
+}
+
+<div class="text-center mb-4">
+    <h2 class="page-title">
+        <i class="bi bi-house-add-fill"></i> Alquilar Casa
+    </h2>
+    <p class="text-muted">Completa el formulario para alquilar tu casa ideal</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header card-header-custom text-center">
+                <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Formulario de Alquiler</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="AlquilarCasa" method="post">
+
+                    <div class="mb-4">
+                        <label for="IdCasa" class="form-label">
+                            <i class="bi bi-house-door"></i> Selecciona una Casa <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="IdCasa"
+                                class="form-select form-select-lg"
+                                id="IdCasa"
+                                onchange="actualizarPrecio()"
+                                required>
+                            <option value="">-- Seleccione una casa --</option>
+                            @if (ViewBag.CasasDisponibles != null)
+                            {
+                                @foreach (var casa in ViewBag.CasasDisponibles)
+                                {
+                                    <option value="@casa.Value">@casa.Text</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="IdCasa" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="PrecioCasa" class="form-label">
+                            <i class="bi bi-cash-coin"></i> Precio Mensual
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-success text-white fw-bold">₡</span>
+                            <input asp-for="PrecioCasa"
+                                   type="text"
+                                   class="form-control"
+                                   id="PrecioCasa"
+                                   readonly
+                                   placeholder="Seleccione una casa"
+                                   style="background-color: #f8f9fa; font-weight: bold; font-size: 1.2rem;" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="UsuarioAlquiler" class="form-label">
+                            <i class="bi bi-person-fill"></i> Tu Nombre Completo <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="UsuarioAlquiler"
+                               type="text"
+                               class="form-control form-control-lg"
+                               id="UsuarioAlquiler"
+                               placeholder="Ingresa tu nombre"
+                               maxlength="30"
+                               required />
+                        <span asp-validation-for="UsuarioAlquiler" class="text-danger"></span>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-calendar-check"></i> <strong>Fecha:</strong> Se registrará automáticamente la fecha actual
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-custom-secondary btn-lg">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-custom-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Confirmar Alquiler
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Datos de las casas desde el servidor
+        var casasData = @Html.Raw(Json.Serialize(ViewBag.CasasData ?? new List<object>()));
+
+        function actualizarPrecio() {
+            var select = document.getElementById('IdCasa');
+            var precioInput = document.getElementById('PrecioCasa');
+
+            if (select.value) {
+                // Buscar el precio en los datos
+                var casaSeleccionada = casasData.find(c => c.id == select.value);
+
+                if (casaSeleccionada) {
+                    var precioFormateado = casaSeleccionada.precio.toLocaleString('es-CR', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    });
+                    precioInput.value = precioFormateado;
+                    precioInput.style.backgroundColor = '#d4edda';
+                    precioInput.style.color = '#155724';
+                }
+            } else {
+                precioInput.value = '';
+                precioInput.style.backgroundColor = '#f8f9fa';
+                precioInput.style.color = '#000';
+            }
+        }
+    </script>
 }
